@@ -72,7 +72,7 @@ agente = Agent(
 # Ferramenta para ler apenas repositórios marcados com o topic 'portfolio'
 @agente.tool_plain
 def buscar_meus_projetos_github() -> str:
-    #Busca apenas os repositórios marcados com o tópico 'portfolio' e lê os READMEs.
+    """ Busca apenas os repositórios marcados com o tópico 'portfolio' e lê os READMEs. """
     print("-> [Tool] Consultando repositórios no GitHub...")
     repos = gh.get_user().get_repos(visibility="public")
     projetos_filtrados = []
