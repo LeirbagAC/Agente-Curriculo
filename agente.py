@@ -7,8 +7,10 @@ from agente_curriculo.github_tools import (
     criar_cliente_github,
 )
 from agente_curriculo.google_docs import (
+    obter_ou_criar_pasta,
     gerar_curriculo_no_docs,
-    obter_credenciais_google,
+    obter_credenciais_google
+    
 )
 from agente_curriculo.models import DadosCurriculo
 from agente_curriculo.settings import (
@@ -16,7 +18,7 @@ from agente_curriculo.settings import (
     GOOGLE_CREDENTIALS_FILE,
     GOOGLE_SCOPES,
     LOCAL_TEMPLATE_PATH,
-    TEMPLATE_DOC_ID,
+    # TEMPLATE_DOC_ID,
 )
 
 

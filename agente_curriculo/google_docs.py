@@ -13,9 +13,34 @@ from .settings import (
     LOCAL_TEMPLATE_PATH,
 )
 
+NOME_PASTA_DRIVE = "Curriculos Gerados - Agente"
+
+def obter_ou_criar_pasta(drive_service, nome_pasta: str) -> str:
+    """Busca a pasta criada pelo app no Drive ou cria uma nova se ainda não existir."""
+    query = (
+        f"name = '{nome_pasta}' and "
+        "mimeType = 'application/vnd.google-apps.folder' and "
+        "trashed = false"
+    )
+    resultado = (
+        drive_service.files()
+        .list(q=query, spaces="drive", fields="files(id, name)")
+        .execute()
+    )
+    arquivos = resultado.get("files", [])
+
+    if arquivos:
+        return arquivos[0]["id"]
+
+    # Se não existir ainda, cria a pasta (pertencente ao escopo drive.file)
+    metadata_pasta = {
+        "name": nome_pasta,
+        "mimeType": "application/vnd.google-apps.folder",
+    }
+    pasta = drive_service.files().create(body=metadata_pasta, fields="id").execute()
+    return pasta.get("id")
 
 def obter_credenciais_google() -> Credentials:
-    """Autentica via OAuth 2.0 do usuário e salva/renova o token.json localmente."""
     creds = None
     if os.path.exists("token.json"):
         creds = Credentials.from_authorized_user_file("token.json", GOOGLE_SCOPES)
@@ -36,15 +61,18 @@ def obter_credenciais_google() -> Credentials:
 
 
 def gerar_curriculo_no_docs(dados: DadosCurriculo) -> str:
-    """Envia o template .docx local convertendo para Google Docs e preenche os placeholders."""
+    """Envia o template .docx local convertendo para Google Docs dentro da pasta dedicada."""
     creds = obter_credenciais_google()
 
     drive_service = build("drive", "v3", credentials=creds)
     docs_service = build("docs", "v1", credentials=creds)
 
+    pasta_id = obter_ou_criar_pasta(drive_service, NOME_PASTA_DRIVE)
+
     file_metadata = {
         "name": dados.nome_arquivo,
         "mimeType": "application/vnd.google-apps.document",
+        "parents": [pasta_id],
     }
 
     media = MediaFileUpload(
