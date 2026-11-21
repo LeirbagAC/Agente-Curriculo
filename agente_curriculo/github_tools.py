@@ -14,20 +14,24 @@ def buscar_meus_projetos_github(gh: Github) -> str:
     projetos_filtrados = []
 
     for repo in repos:
-        if repo.fork or "portfolio" not in repo.get_topics():
+        topicos = repo.get_topics()
+        if repo.fork or "portfolio" not in topicos:
             continue
 
         try:
-            readme = repo.get_readme().decoded_content.decode("utf-8")[:2000]
+            readme = repo.get_readme().decoded_content.decode("utf-8")[:4500] # Limite de caracteres na leitura do README
         except Exception:
             readme = "Sem README disponível."
+
+        tags_limpas = ", ".join(t for t in topicos if t != "portfolio")
 
         info = (
             f"=== PROJETO: {repo.name} ===\n"
             f"URL: {repo.html_url}\n"
             f"Linguagem principal: {repo.language}\n"
+            f"Tecnologias/Tópicos: {tags_limpas}\n"
             f"Descrição: {repo.description}\n"
-            f"Resumo do README:\n{readme}\n"
+            f"Conteúdo do README:\n{readme}\n"
         )
         projetos_filtrados.append(info)
 
