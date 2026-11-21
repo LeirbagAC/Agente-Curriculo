@@ -1,3 +1,5 @@
+from agente_curriculo.agent import ContextoCandidato, carregar_perfil
+
 def ler_vaga_terminal() -> str:
     print("Cole a descrição da vaga abaixo.")
     print("Quando terminar, digite FIM em uma nova linha e pressione Enter:\n")
@@ -16,6 +18,9 @@ def executar() -> None:
     from .google_docs import gerar_curriculo_no_docs
     from .settings import GITHUB_TOKEN
 
+    perfil_texto = carregar_perfil("perfil.md")
+    contexto = ContextoCandidato(perfil_markdown=perfil_texto)
+
     descricao_vaga = ler_vaga_terminal()
 
     if not descricao_vaga.strip():
@@ -26,7 +31,10 @@ def executar() -> None:
     agente = criar_agente(gh)
 
     print("\nAnalisando vaga e gerando adaptação...")
-    resultado = agente.run_sync(f"Adapte meu currículo para esta vaga:\n{descricao_vaga}")
+    resultado = agente.run_sync(
+        f"Adapte meu currículo para esta vaga:\n{descricao_vaga}",
+        deps=contexto,
+        )
 
     modelo_usado = resultado.response.model_name
     print(f"-> [LLM] Modelo utilizado: {modelo_usado}")
